@@ -1,0 +1,32 @@
+{
+  "name": "valheim-manager",
+  "version": "1.0.0",
+  "description": "A node.js application for managing valheim dedicated servers. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chegele/ValheimManager.git"
+  },
+  "keywords": [
+    "Valheim",
+    "Dedicated",
+    "Server",
+    "Manager",
+    "VDS",
+    "Game",
+    "Installer"
+  ],
+  "author": "Chegele",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chegele/ValheimManager/issues"
+  },
+  "homepage": "https://github.com/chegele/ValheimManager#readme",
+  "dependencies": {
+    "auto-git-update": "^2.0.1",
+    "chegs-simple-logger": "^1.1.0"
+  }
+}

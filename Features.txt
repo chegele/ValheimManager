@@ -1,0 +1,16 @@
+
+- Install Steam CMD
+- Install Valheim Dedicated Server
+- Update Valheim Dedicated Server
+- Update the Valheim Manager
+- Configuration
+	- Manager config
+	- Launch config
+	- admin, banned, and permitted config
+- Validate open ports and firewall
+- Launch a world
+- Check sytem resources
+- Create world backups
+- Discord Integration 
+- Web API Integration
+- Web UI Integration
