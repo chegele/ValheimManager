@@ -1,2 +1,3 @@
 
-/** @typedef {import('./config')}   Configuration */
+/** @typedef {import('../../index')}    Manager */
+/** @typedef {import('./config')}       Configuration */
