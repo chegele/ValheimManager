@@ -1,0 +1,2 @@
+
+/** @typedef {import('./config')}   Configuration */
