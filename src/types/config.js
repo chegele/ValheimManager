@@ -1,19 +1,23 @@
 
 module.exports = {
 
+    manager: {
+        serverLocation: String
+    },
+
     logging: {
-        logDebug: true,
-        logDetail: true,
-        logGeneral: true,
-        logWarning: true,
-        logError: true,
-        prefix: 'ValheimManager - ',
-        writeLog: true,
-        fileName: 'ManagerLog.txt',
-        filePath: './logs/',
-        fileSize: '100M',
-        fileAge: 7,
-        fileCount: 3
+        logDebug: Boolean,
+        logDetail: Boolean,
+        logGeneral: Boolean,
+        logWarning: Boolean,
+        logError: Boolean,
+        prefix: String,
+        writeLog: Boolean,
+        fileName: String,
+        filePath: String,
+        fileSize: String,
+        fileAge: Number,
+        fileCount: Number
     }
 
 }
