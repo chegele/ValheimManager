@@ -1,6 +1,8 @@
 
 test.js
 testConfig.json
+
+.vscode
 node_modules
 logs
 server
