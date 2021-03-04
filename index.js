@@ -22,6 +22,11 @@ module.exports = class ValheimManager {
     /** @param {Configuration} config - The configuration for the manager */
     constructor(config) {
 
+        // Validate the configuration file
+        const configValidation = validateConfiguration(config);
+        if (configValidation !== 'ok') throw new Error(configValidation);
+
+        // Create instances of all tools and dependencies
         this.config = config;
         this.logger = new Logger(config.logging);
         this.autoManagerUpdate = new AutoUpdate(autoGitUpdateConfig);
@@ -34,4 +39,13 @@ module.exports = class ValheimManager {
 
     }
     
+}
+
+/**
+ * Synchronous / thread blocking validation of the config which can be used in the modules constructor.
+ * @param {Configuration} config - The user provided configuration to be validated.
+ * @returns {String} - A fully detailed error message to help an average user troubleshoot, or "ok".
+ */
+function validateConfiguration(config) {
+    return 'ok';
 }
