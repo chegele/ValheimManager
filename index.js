@@ -26,6 +26,16 @@ module.exports = class ValheimManager {
         const configValidation = validateConfiguration(config);
         if (configValidation !== 'ok') throw new Error(configValidation);
 
+        // Check operating system and add to the config
+        const os = process.platform; 
+        if (os !== 'win32' && os !== 'linux') {
+            let error = `This operating system, ${os}, is not supported!\n`;
+            error += `You can set manager.operatingSystem to either win32 or linux to ignore this warning.`;
+            if (!config.manager.operatingSystem) throw new Error(error);
+        } else {
+            config.manager.operatingSystem = os;
+        }
+
         // Create instances of all tools and dependencies
         this.config = config;
         this.logger = new Logger(config.logging);

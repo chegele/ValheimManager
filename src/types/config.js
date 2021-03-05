@@ -2,7 +2,9 @@
 module.exports = {
 
     manager: {
-        serverLocation: String
+        operatingSystem: String,
+        serverLocation: String,
+        linuxPackageManager: String
     },
 
     logging: {
