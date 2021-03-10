@@ -28,7 +28,7 @@ module.exports = class Installer {
             this.installSteam = this.installSteamWindows;
         } else {
             this.steamCliPath = path.join(this.steamDirectory, 'steamcmd.sh');
-            this.valheimServerPath = path.join(this.valheimDirectory, 'start_server.sh');
+            this.valheimServerPath = path.join(this.valheimDirectory, 'valheim_server.x86_64');
             this.installSteam = this.installSteamLinux;
         }
     }
