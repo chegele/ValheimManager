@@ -8,7 +8,7 @@ const Backups = require('./src/backups');
 const Discord = require('./src/discord');
 const Installer = require('./src/installer');
 const Launcher = require('./src/launcher');
-const System = require('./src/launcher');
+const System = require('./src/system');
 const ValFiles = require('./src/valheimFiles');
 
 const autoGitUpdateConfig = {
