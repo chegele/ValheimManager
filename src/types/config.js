@@ -7,6 +7,13 @@ module.exports = {
         linuxPackageManager: String
     },
 
+    launcher: {
+        port: Number,
+        world: String,
+        name: String,
+        password: String
+    },
+
     logging: {
         logDebug: Boolean,
         logDetail: Boolean,
