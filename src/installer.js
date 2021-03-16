@@ -5,7 +5,6 @@ const path = require('path');
 const https = require('https');
 const fs = require('fs-extra');
 const zip = require('adm-zip');
-const execute = require('child_process').exec;
 
 const steamCliLinkWin = 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip';
 const steamCliLinkLnx = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz";
@@ -60,14 +59,14 @@ module.exports = class Installer {
             const downloadPath = path.join(this.steamDirectory, 'steam.tar.gz');
             await fs.ensureDir(this.steamDirectory);
             await promiseDownload(steamCliLinkLnx, downloadPath);
-            const un = await promiseExecute(`tar -xf ${downloadPath} -C ${this.steamDirectory}`);
+            await this.manager.system.execute(`tar -xf ${downloadPath} -C ${this.steamDirectory}`);
             const downloaded = await this.validateSteam();
             if (!downloaded) throw new Error(`Failed to download or extract steam @ ${downloadPath}`);
             await fs.unlink(downloadPath);
 
             // Attempt a initial run to determine if dependencies are installed
             this.manager.logger.general(`Installing steam resources...`);
-            const setupOutput = await promiseExecute(`${this.steamCliPath} +exit`);
+            const setupOutput = await this.manager.system.execute(`${this.steamCliPath} +exit`);
             if (!setupOutput.includes('Update complete, launching Steamcmd...') ||
             !setupOutput.includes('Loading Steam API...OK')) {
                 let error = 'Failed initial launch of steam. You may need to install dependencies.\n';
@@ -128,7 +127,7 @@ module.exports = class Installer {
             this.manager.logger.general('Installing the Valheim dedicated server...');
             const command = `${this.steamCliPath} +login anonymous +force_install_dir ${this.valheimDirectory} +app_update 896660 validate +exit`;
             await fs.ensureDir(this.valheimDirectory);
-            const out = await promiseExecute(command);
+            const out = await this.manager.system.execute(command);
             if (!out.includes(`Success! App '896660' fully installed.`)) throw new Error('Unable to locate the success message in steam cmd.');
             if (!await this.validateValheim()) throw new Error('Unable to locate the valheim_server file.');
             return true;
@@ -176,23 +175,6 @@ function promiseUnzip(file, destination) {
                 return reject(err);
             }
             resolve();
-        });
-    });
-}
-
-
-/**
- * Executes the provided command and resolves a promise with the output.
- * Errors are stderr messages cause the promise to be rejected. 
- * @param {String} command - The command to execute.
- * @returns {Promise<String>} - The command output.
- */
-function promiseExecute(command) {
-    return new Promise(function(resolve, reject) {
-        execute(command, function(error, stdout, stderr) {
-            if (error) reject(error);
-            if (stderr) reject(stderr);
-            resolve(stdout);
         });
     });
 }
