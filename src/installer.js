@@ -66,12 +66,20 @@ module.exports = class Installer {
 
             // Attempt a initial run to determine if dependencies are installed
             this.manager.logger.general(`Installing steam resources...`);
-            const setupOutput = await this.manager.system.execute(`${this.steamCliPath} +exit`);
+            const setupOutput = await this.manager.system.execute(`${this.steamCliPath} +exit`).catch(err => {
+                if (err.message.includes('Command failed')) {
+                    let error = 'Failed initial launch of steam. You may need to install dependencies.\n';
+                    error += '  Ubuntu/Debian (x86-64): sudo apt-get install lib32gcc1\n';
+                    error += '  RedHat/CentOS (x86-64): yum install glibc.i686 libstdc++.i686\n';
+                    err.message = error + err.message;
+                }
+                throw err;
+            });
+
+            // Validate the output of the initial run. 
             if (!setupOutput.includes('Update complete, launching Steamcmd...') ||
             !setupOutput.includes('Loading Steam API...OK')) {
-                let error = 'Failed initial launch of steam. You may need to install dependencies.\n';
-                error += '  Ubuntu/Debian (x86-64): sudo apt-get install lib32gcc1\n';
-                error += '  RedHat/CentOS (x86-64): yum install glibc.i686 libstdc++.i686\n';
+                let error = 'Steam did not return the expected result.\n';
                 error += '== Steam cmd log details ==\n' + setupOutput;
                 throw new Error(error);
             }
@@ -89,6 +97,8 @@ module.exports = class Installer {
      */
     async installSteamWindows() {
         try {
+
+            // Download and extract steam 
             this.manager.logger.general(`Downloading the steam cli from ${steamCliLinkWin}...`);
             const downloadPath = path.join(this.steamDirectory, 'steam.zip');
             await fs.ensureDir(this.steamDirectory);
@@ -96,9 +106,26 @@ module.exports = class Installer {
             await promiseUnzip(downloadPath, this.steamDirectory);
             await fs.unlink(downloadPath);
             if (!this.validateSteam) throw new Error('Unable to locate the steamcmd.exe file.');
+
+            // Attempt a initial run and validate the output
+            // TODO: Initial run is always crashing steam on windows, but 2nd run works. 
+            this.manager.logger.general(`Installing steam resources...`);
+            let runOutput = await this.manager.system.execute(`${this.steamCliPath} +exit`).catch(err => {});
+            if (!runOutput) { 
+                runOutput = await this.manager.system.execute(`${this.steamCliPath} +exit`).catch(err => {
+                    throw new Error('Failed initial launch of steam' + err);
+                });
+            }
+
+            if (!runOutput.includes('Loading Steam API...OK')) {
+                let error = 'Steam did not return the expected result.\n';
+                error += '== Steam cmd log details ==\n' + runOutput;
+                throw new Error(error);
+            }
+
             return true;
         }catch (err) {
-            this.manager.logger.error(`There was an error while attempting to install the steam cli.\n${err}`, true);
+            this.manager.logger.error(`There was an error while attempting to install the steam cli.\n${err.stack ? err.stack : err}`, true);
             return false;
         }
     }
