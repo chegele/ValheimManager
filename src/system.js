@@ -1,6 +1,7 @@
 require('./types/typedef');
 
 const exec = require('child_process').exec;
+const admZip = require('adm-zip');
 
 module.exports = class SystemTools {
     
@@ -71,6 +72,40 @@ module.exports = class SystemTools {
                 if (error) reject(error);
                 if (stderr) reject(stderr);
                 resolve(stdout);
+            });
+        });
+    }
+
+
+    /**
+     * Creates a zip archive and resolves an empty promise.
+     * @param {String[]} files - The files to be included in the archive.
+     * @param {String} destination - The location of save the file.
+     * @returns 
+     */
+    zip(files, destination) {
+        return new Promise(function(resolve, reject) {
+            const archive = new admZip();
+            for (const file of files) archive.addLocalFile(file);
+            archive.writeZip(destination, err => {
+                if (err) return reject(err);
+                resolve();
+            })
+        });
+    }
+
+
+    /**
+     * Extracts a zip file and resolves an empty promise. 
+     * @param {String} file - The path of the archive to unzip.
+     * @param {String} destination - The location to extract the files to. 
+     */
+    unzip(file, destination) {
+        return new Promise(function(resolve, reject) {
+            const archive = new admZip(file);
+            archive.extractAllToAsync(destination, true, err => {
+                if (err) return reject(err);
+                resolve();
             });
         });
     }

@@ -4,7 +4,6 @@ require('./types/typedef');
 const path = require('path');
 const https = require('https');
 const fs = require('fs-extra');
-const zip = require('adm-zip');
 
 const steamCliLinkWin = 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip';
 const steamCliLinkLnx = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz";
@@ -103,7 +102,7 @@ module.exports = class Installer {
             const downloadPath = path.join(this.steamDirectory, 'steam.zip');
             await fs.ensureDir(this.steamDirectory);
             await promiseDownload(steamCliLinkWin, downloadPath);
-            await promiseUnzip(downloadPath, this.steamDirectory);
+            await this.manager.system.unzip(downloadPath, this.steamDirectory);
             await fs.unlink(downloadPath);
             if (!this.validateSteam) throw new Error('Unable to locate the steamcmd.exe file.');
 
@@ -185,23 +184,5 @@ function promiseDownload(url, destination) {
 
         // Send the request
         req.end();
-    });
-}
-
-
-/**
- * Extracts a zip file and resolves an empty promise. 
- * @param {String} file - The path of the archive to unzip.
- * @param {String} destination - Te location to extract the files to. 
- */
-function promiseUnzip(file, destination) {
-    return new Promise(function(resolve, reject) {
-        let archive = new zip(file);
-        archive.extractAllToAsync(destination, true, err => {
-            if (err) {
-                return reject(err);
-            }
-            resolve();
-        });
     });
 }
