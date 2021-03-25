@@ -125,7 +125,7 @@ module.exports = class ValheimBackups {
             filesMoved = true;
 
             // Restore the backup and validate files
-            await this.manager.system.unzip(backupPath, 'C:\\Users\\scheg\\AppData\\LocalLow\\IronGate\\Valheim\\worlds\\');
+            await this.manager.system.unzip(backupPath, this.worldsPath);
             const dbStats = await fs.stat(this.dbFilePath);
             const fwlStats = await fs.stat(this.fwlFilePath);
             if (dbStats.size < 1 || fwlStats.size < 1) throw new Error('Restored files have no data');
