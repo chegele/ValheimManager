@@ -4,7 +4,8 @@ module.exports = {
     manager: {
         operatingSystem: String,
         serverLocation: String,
-        linuxPackageManager: String
+        backupFrequency: Number,
+        backupRetention: Number
     },
 
     launcher: {
