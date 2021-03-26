@@ -3,6 +3,7 @@ module.exports = {
 
     manager: {
         operatingSystem: String,
+        configLocation: String,
         serverLocation: String,
         backupFrequency: Number,
         backupRetention: Number
