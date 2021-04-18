@@ -2,6 +2,8 @@ require('./types/typedef');
 
 const exec = require('child_process').exec;
 const admZip = require('adm-zip');
+const osUtils = require('os-utils');
+const nat = require('nat-puncher');
 
 module.exports = class SystemTools {
     
@@ -10,6 +12,7 @@ module.exports = class SystemTools {
     constructor(manager) {
 
         this.manager = manager;
+        this.gamePort = manager.config.launcher.port;
 
         if (manager.config.manager.operatingSystem == 'win32') {
             this.findProcess = this.findWindowsProcess;
@@ -17,6 +20,35 @@ module.exports = class SystemTools {
             this.findProcess = this.findLinuxProcess;
         }
 
+    }
+
+
+    /**
+     * Checks the current cpu use
+     */
+    cpuStats() {
+        const system = this;
+        return new Promise(function(resolve, reject) {
+            osUtils.cpuUsage(use => {
+                const stats = {
+                    percentUse: Math.round(use * 100),
+                    cores: osUtils.cpuCount()
+                }
+                system.manager.logger.detail(`CPU stats checked - ${stats.percentUse}% used with ${stats.cores} cores.`);
+                resolve(stats);
+            })
+        });
+    }
+
+
+    /**
+     * Checks the current memory use
+     */
+    memoryStats() {
+        const total = Math.round(osUtils.totalmem());
+        const percentUse = Math.round(100 - (osUtils.freememPercentage() * 100));
+        this.manager.logger.detail(`Memory stats checked - ${percentUse}% of ${total}MB used.`);
+        return {percentUse, total};
     }
 
 
@@ -121,8 +153,87 @@ module.exports = class SystemTools {
             setTimeout(resolve, seconds * 1000);
         });
     }
+
+
+    /**
+     * Checks for active upnp services on the router
+     */
+    async checkNatSupport() {
+        return await nat.probeProtocolSupport();
+    }
+
+
+    /**
+     * Checks for current port maps utilizing upnp
+     */
+    async getPortMaps() {
+        return await nat.getActiveMappings();
+    }
+
+
+    /**
+     * Attempts to create a new port mapping
+     * @param {Number} internal - The internal port (local machine)
+     * @param {Number} external - The external port (internet addressable)
+     * @param {Number} seconds - The number of seconds to keep the port open. 0 will refresh the mapping every hour
+     */
+    async addPortMap(internal, external, seconds) {
+        return await nat.addMapping(internal, external, seconds);
+    }
+
+
+    /**
+     * Attempts to remove a port mapping
+     * @param {Number} external - The external port to close 
+     */
+    async removePortMappings(external) {
+        return await nat.deleteMapping(external);
+    }
+
+
+    /**
+     * Attempts to automatically open all three server ports
+     * @returns {Boolean} true on success or an error will be thrown with failure details
+     */
+    async autoOpenServerPorts() {
+        const ports = [this.gamePort, this.gamePort + 1, this.gamePort + 2];
+        this.manager.logger.general(`Attempting to open ports ${ports.toString()}...`);
+        const protocols = await this.checkNatSupport();
+        if (!protocols.natPmp && !protocols.pcp && !protocols.upnp) {
+            this.manager.logger.warning('Unable to automatically open ports. All upnp protocols are disabled on your router.');
+            throw new Error('Unable to automatically open ports.');
+        }
+        for (const port of ports) {
+            let result = await this.addPortMap(port, port, 0);
+            if (!result) {
+                this.manager.logger.warning('Failed to open port ' + port);
+                throw new Error('Failed to open port ' + port);
+            }
+        }
+        this.manager.logger.general('Successfully opened the ports.');
+        return true;
+    }
+
+
+    /**
+     * Attempts to automatically close all of the server ports
+     * @returns {Boolean} true on success or an error with throw with failure details
+     */
+    async autoCloseServerPorts() {
+        const ports = [this.gamePort, this.gamePort + 1, this.gamePort + 2];
+        this.manager.logger.general(`Attempting to close ports ${ports.toString()}...`);
+        let failed = [];
+        for (const port of ports) {
+            let result = await this.removePortMappings(port);
+            if (!result) failed.push(port);
+        }
+        if (failed.length > 0) {
+            this.manager.logger.warning('Failed to close port(s) ' + failed.toString());
+            throw new Error('Failed to close port(s) ' + failed.toString());
+        }
+        this.manager.logger.general('Successfully closed the ports.');
+        return true;
+    }
     
     
 }
-
-// npm i nat-puncher
