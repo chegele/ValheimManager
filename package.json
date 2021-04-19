@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A node.js application for managing valheim dedicated servers. ",
   "main": "index.js",
+  "bin": {
+    "valheim-manager": "./src/console.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
