@@ -2,11 +2,12 @@
 module.exports = {
 
     manager: {
-        autoOpenPorts: false,
         configLocation: './vmConfig.json',
         serverLocation: './server/',
         backupFrequency: 60,
-        backupRetention: 6
+        backupRetention: 6,
+        autoOpenPorts: false,
+        autoRestartServer: true
     },
 
     launcher: {
@@ -17,8 +18,8 @@ module.exports = {
     },
 
     logging: {
-        logDebug: true,
-        logDetail: true,
+        logDebug: false,
+        logDetail: false,
         logGeneral: true,
         logWarning: true,
         logError: true,
