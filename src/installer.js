@@ -82,6 +82,8 @@ module.exports = class Installer {
                 error += '== Steam cmd log details ==\n' + setupOutput;
                 throw new Error(error);
             }
+
+            this.manager.logger.general('Successfully installed steam.');
             return true;
         } catch (err) {
             this.manager.logger.error(`There was an error while attempting to install the steam cli.\n${err}`, true);
@@ -122,6 +124,7 @@ module.exports = class Installer {
                 throw new Error(error);
             }
 
+            this.manager.logger.general('Successfully installed steam.');
             return true;
         }catch (err) {
             this.manager.logger.error(`There was an error while attempting to install the steam cli.\n${err.stack ? err.stack : err}`, true);
@@ -150,12 +153,13 @@ module.exports = class Installer {
      */
     async installValheim() {
         try {
-            this.manager.logger.general('Installing the Valheim dedicated server...');
+            this.manager.logger.general('Installing/Updating the Valheim dedicated server...');
             const command = `${this.steamCliPath} +login anonymous +force_install_dir ${this.valheimDirectory} +app_update 896660 validate +exit`;
             await fs.ensureDir(this.valheimDirectory);
             const out = await this.manager.system.execute(command);
             if (!out.includes(`Success! App '896660' fully installed.`)) throw new Error('Unable to locate the success message in steam cmd.');
             if (!await this.validateValheim()) throw new Error('Unable to locate the valheim_server file.');
+            this.manager.logger.general('Successfully installed valheim.');
             return true;
         } catch (err) {
             this.manager.logger.error(`There was an error while attempting to install the valheim dedicated server.\n${err}`, true);
