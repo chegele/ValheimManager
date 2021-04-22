@@ -1,6 +1,7 @@
 
 test.js
 testConfig.json
+vmConfig.json
 
 .vscode
 node_modules
