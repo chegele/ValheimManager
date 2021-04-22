@@ -50,6 +50,14 @@ module.exports = class ValheimManager {
         this.system = new System(this);
         this.valFiles = new ValFiles(this);
 
+        // Monitor for SIGINT and stop server
+        const manager = this;
+        process.on('SIGINT', async function() {
+            manager.logger.general('Signal interrupt detected');
+            await manager.launcher.stopValheim();
+            process.exit();
+        })
+
     }
     
 }
@@ -85,12 +93,20 @@ function validateConfiguration(config) {
         }
     }
 
-    // Validate file paths 
+    // Validate the parent directory is accessible. Create the child directory if needed. 
     const validatePaths = [config.manager.configLocation, config.manager.serverLocation];
     if (config.logging.writeLog) validatePaths.push(config.logging.filePath);
     for (const location of validatePaths) {
         const fullPath = path.resolve(location);
-        if (!fs.existsSync(fullPath)) errors.push(`The path ${fullPath} is not accessible.`);
+        const parentPath = path.dirname(fullPath);
+        if (!fs.existsSync(parentPath)) {
+            errors.push(`The path ${parentPath} is not accessible.`);
+            continue;
+        } 
+        if (!fs.existsSync(fullPath)) {
+            const creationMethod = fullPath.includes('.') ? fs.createFileSync : fs.mkdirSync;
+            creationMethod(fullPath);
+        } 
     }
 
     // Validate the specifics of some property values
