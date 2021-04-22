@@ -9,6 +9,9 @@ const rl = require('readline').createInterface({
     output: process.stdout
 });
 
+// Create a logger to be used in case of error, before the script closes
+let logger;
+
 // Get the config path argument. If nothing is provided, check for the default name in executing directory. 
 const defaultConfigPath = path.resolve('./vmConfig.json');
 let pathArg = process.argv.length > 2 ? process.argv[3] : null;
@@ -44,21 +47,53 @@ async function execute() {
         throw new Error(`Failed to parse the configuration file. Maybe you provided the wrong path?\nPath: ${configPath}\n${err.stack}`);
     });
 
-    // Start the valheim manager and proceed with setup, installation, and launch of the server.
+    // Setup the valheim manager.
     const manager = new ValheimManager(config);
+    logger = manager.logger;
 
+    // If configured, attempt to open ports
     if (config.manager.autoOpenPorts) await manager.system.autoOpenServerPorts().catch(err => {
         console.log(`Your router may not have upnp services enabled. Try again after enabling this feature on your router or manually open the ports.`);
         process.exit();
     });
 
-    if (!await manager.installer.installSteam()) process.exit();
-    if (!await manager.installer.installValheim()) process.exit();
+    // Install the the steam CLI
+    const steamInstalled = await manager.installer.validateSteam();
+    if (!steamInstalled) {
+        if (!await manager.installer.installSteam()) process.exit();
+        await manager.system.wait(3);
+    }
+
+    // Install Valheim
+    const valheimInstalled = await manager.installer.validateValheim();
+    if (!valheimInstalled) {
+        if (!await manager.installer.installValheim()) process.exit();
+        await manager.system.wait(3);
+    }
+
+    // Generate the launch file 
     if (!await manager.launcher.generateLauncher()) process.exit();
-    if (!await manager.launcher.startValheim()) process.exit();
-    await manager.launcher.enableAutoStart();
+
+    // Attempt to start the server. If it fails an update may be needed
+    const valheimStarted = await manager.launcher.startValheim();
+    if (!valheimStarted) {
+        manager.logger.general('Initial launch failed. Attempting to update steam and valheim...');
+        await manager.launcher.stopValheim();
+        if (!await manager.installer.installSteam()) process.exit();
+        await manager.system.wait(3);
+        if (!await manager.installer.installValheim()) process.exit();
+        await manager.system.wait(3);
+        if (!await manager.launcher.startValheim()) process.exit();
+    }
+
+    // Enable auto restart if configured
+    if (manager.config.manager.autoRestartServer) {
+        await manager.launcher.enableAutoStart();
+    }
 
     // Monitor for commands
+    manager.logger.general('Valheim Manager initialization has completed.');
+
 }
 
 
@@ -146,4 +181,11 @@ async function setupConfig() {
 }
 
 module.exports.execute = execute;
-execute();
+execute().catch(err => {
+    const msg = `The Valheim Manager has encountered an unexpected error.\n${err.stack}`;
+    if (logger) {
+        logger.error(msg);
+    } else {
+        console.log(msg);
+    }  
+});
