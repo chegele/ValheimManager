@@ -25,6 +25,8 @@ module.exports = class ValheimManager {
     /** @param {Configuration} config - The configuration for the manager */
     constructor(config) {
 
+        const manager = this;
+
         // Validate the configuration file
         const configValidation = validateConfiguration(config);
         if (configValidation !== 'ok') throw new Error(configValidation);
@@ -50,8 +52,46 @@ module.exports = class ValheimManager {
         this.system = new System(this);
         this.valFiles = new ValFiles(this);
 
+        // Prepare the commands
+        const commands = new Map();
+        for (const file of fs.readdirSync('./src/commands')) {
+            if (file == 'command.js' || !file.endsWith('.js') || file.startsWith('old_')) continue;
+            const command = new (require(`./src/commands/${file}`))(manager);
+            commands.set(command.name, command);
+        }
+
+        // Generate and attach the command execution function
+        this.execute = async function(commandString, update) {
+
+            // Validate the command string and break it down to its components
+            if (!commandString || typeof(commandString) != 'string') throw new Error('Execute expects a command string as the first argument.');
+            const args = commandString.split(' ');
+            const commandName = args.shift();
+
+            // If this is a request for the command list, display all available commands
+            if (commandName && commandName.toLowerCase() == 'command-list') {
+                let list = '\n== COMMAND NAME == == == COMMAND DESCRIPTION ==';
+                for (const command of commands.values()) list += `\n ${command.name} - ${command.description}`;
+                return list;
+            }
+
+            // Identify the command being called 
+            const command = commands.get(commandName);
+            if (!command) return `${commandName} is not a valid command. Try command-list.`;
+
+            // Validate and execute the command
+            try {
+                if (update) update(command.acknowledgment);
+                const validationError = await command.validate(args);
+                if (validationError) return validationError;
+                return await command.execute(args);
+            } catch (err) {
+                manager.logger.error(`Error executing command - ${commandString}. \n${err.stack}`);
+                return 'There was an error executing this command';
+            }
+        }
+
         // Monitor for SIGINT and stop server
-        const manager = this;
         process.on('SIGINT', async function() {
             manager.logger.general('Signal interrupt detected');
             await manager.launcher.stopValheim();

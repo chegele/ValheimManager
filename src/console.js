@@ -92,7 +92,11 @@ async function execute() {
     }
 
     // Monitor for commands
-    manager.logger.general('Valheim Manager initialization has completed.');
+    rl.on('line', async line => {
+        const commandResult = await manager.execute(line);
+        manager.logger.general(commandResult);
+    });
+    manager.logger.general('Initialization has completed. You can now execute commands (command-list)');
 
 }
 
