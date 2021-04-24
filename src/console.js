@@ -93,6 +93,7 @@ async function execute() {
 
     // Monitor for commands
     rl.on('line', async line => {
+        if (!line || line.length < 1) return;
         const commandResult = await manager.execute(line);
         manager.logger.general(commandResult);
     });
