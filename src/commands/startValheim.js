@@ -13,12 +13,9 @@ module.exports = class StartValheim extends Command {
 
     async execute() {
         const pid = await this.manager.launcher.startValheim().catch(err => {
-            if (err.message.includes('A valheim dedicated server is already running')) {
-                return 'A valheim dedicated server is already running';
-            } else {
-                throw err;
-            }
+            if (!err.message.includes('A valheim dedicated server is already running')) throw err;
         });
+        if (!pid) return 'A valheim dedicated server is already running';
         return 'Successfully started the server.';
     }
 }

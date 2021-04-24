@@ -13,12 +13,9 @@ module.exports = class StartValheim extends Command {
 
     async execute() {
         const stopped = await this.manager.launcher.stopValheim().catch(err => {
-            if (err.message.includes("Valheim failed to stop.")) {
-                return "Valheim failed to stop. Review the ServerLog.txt file for more details.";
-            } else {
-                throw err;
-            }
+            if (!err.message.includes("Valheim failed to stop.")) throw err;
         });
+        if (!stopped) return "Valheim failed to stop. Review the ServerLog.txt file for more details.";
         return "Successfully stopped the server."
     }
 }
