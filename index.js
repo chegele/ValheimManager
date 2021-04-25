@@ -95,7 +95,7 @@ module.exports = class ValheimManager {
 
         // Validate and execute the command
         try {
-            if (update) update(command.acknowledgment);
+            if (update && command.acknowledgment) update(command.acknowledgment);
             const validationError = await command.validate(args);
             if (validationError) return validationError;
             return await command.execute(args);
@@ -117,13 +117,14 @@ function validateConfiguration(config) {
 
     // Validate the main components are present
     if (!config.manager) errors.push('The manager portion of this config is missing. Maybe this is not a config file?');
-    if (!config.manager) errors.push('The launcher portion of this config is missing. Maybe this is not a config file?');
-    if (!config.manager) errors.push('The logging portion of this config is missing. Maybe this is not a config file?');
+    if (!config.launcher) errors.push('The launcher portion of this config is missing.');
+    if (!config.logging) errors.push('The logging portion of this config is missing.');
+    if (!config.discord) errors.push('The discord portion of this config is missing.');
     if (errors.length > 0) return errors.join('\n');
 
     // Validate the existence and types of required properties
     const ignoreProperties = ['operatingSystem'];
-    for (const component of ['manager', 'launcher', 'logging']) {
+    for (const component of ['manager', 'launcher', 'discord', 'logging']) {
         for (const [key, value] of Object.entries(defConfig[component])) {
             if (ignoreProperties.includes(key)) continue;
             if (config[component][key] == undefined) {
@@ -162,6 +163,13 @@ function validateConfiguration(config) {
         if (!config.logging.fileSize.match(/[BKMG]$/)) errors.push('The logging file size should end with B, K, M, or G. This letters represent the byte measurement options.');
         if (config.logging.fileAge < 0) errors.push('The logging file age should be more than 0 days.');
         if (config.logging.fileCount < 0) errors.push('The logging file max count should be more than 0.');
+    }
+    if (config.discord.token != '') {
+        if (config.discord.token.length < 20) errors.push('The discord token should be longer.');
+        if (config.discord.serverId.length != 18) errors.push('The discord server id should be 18 characters long.');
+        if (config.discord.adminRoleId.length != 18) errors.push('The discord admin role id should be 18 characters long.');
+        if (config.discord.serverLogChannel.length != 18) errors.push('The discord server log channel id should be 18 characters long.');
+        if (config.discord.commandLogChannel.length != 18) errors.push('The discord command log channel id should be 18 characters long.');
     }
 
     if (errors.length > 0) return errors.join('\n');
