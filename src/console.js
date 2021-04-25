@@ -51,6 +51,18 @@ async function execute() {
     const manager = new ValheimManager(config);
     logger = manager.logger;
 
+    // Check for a new version
+    manager.logger.general(`Checking for updates...`);
+    const remote = await manager.system.readRemoteVersion();
+    const local = await manager.system.readLocalVersion();
+    if (local != remote) {
+        manager.logger.general(`= AN UPDATE IS AVAILABLE FOR THE VALHEIM MANAGER =`);
+        manager.logger.general(`= INSTALLED VERSION: ${local}`);
+        manager.logger.general(`= AVAILABLE VERSION: ${remote}`);
+    } else {
+        manager.logger.general(`Valheim Manager is up to date.`);
+    }
+
     // If configured, attempt to open ports
     if (config.manager.autoOpenPorts) await manager.system.autoOpenServerPorts().catch(err => {
         console.log(`Your router may not have upnp services enabled. Try again after enabling this feature on your router or manually open the ports.`);

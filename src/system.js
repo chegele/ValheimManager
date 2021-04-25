@@ -1,7 +1,9 @@
 require('./types/typedef');
 
 const exec = require('child_process').exec;
+const path = require('path');
 const https = require('https');
+const fs = require('fs-extra');
 const admZip = require('adm-zip');
 const osUtils = require('os-utils');
 const nat = require('nat-puncher');
@@ -238,11 +240,39 @@ module.exports = class SystemTools {
 
 
     /**
+     * Reads the applications version from the package.json file.
+     */
+    async readLocalVersion() {
+        const root = path.dirname(require.main.filename);
+        let file = path.join(root, 'package.json');
+        let appPackage = await fs.readFile(file);
+        return JSON.parse(appPackage).version;
+    }
+
+
+    /**
+     * Reads the applications version from the git repository.
+     */
+    async readRemoteVersion() {
+        let url = `https://raw.githubusercontent.com/chegele/ValheimManager/master/package.json`;
+        try {
+            let body = await this.promiseHttpsRequest(url);
+            let remotePackage = JSON.parse(body);
+            let version = remotePackage.version;
+            return version;
+        }catch(err) {
+            this.manager.logger.error('Failed to read the the remote version of Valheim Manager.\n' + err.stack);
+            return null;
+        }
+    }
+
+
+    /**
      * A promise wrapper for sending a get https requests.
      * @param {String} url - The Https address to request.
      * @param {String} options - The request options. 
      */
-    promiseHttpsRequest(url, options) {
+    promiseHttpsRequest(url, options = {}) {
         return new Promise(function(resolve, reject) {
             const req = https.request(url, options, res => {
                 let body = '';
