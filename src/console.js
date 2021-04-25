@@ -165,6 +165,28 @@ async function setupConfig() {
     const autoRestarts = await prompt('Would you like the manager to automatically restart the server if it stops?', answer => {
         if (!answer.toLowerCase().startsWith('y') && !answer.toLowerCase().startsWith('n')) return 'You need to answer with a yes or a no.';
     });
+    const discordSetup = await prompt('Would you like to use Valheim Manager as a Discord bot?', answer => {
+        if (!answer.toLowerCase().startsWith('y') && !answer.toLowerCase().startsWith('n')) return 'You need to answer with a yes or a no.';
+    });
+    let token, serverId, adminRoleId, serverLogChannel, commandLogChannel;
+    if (discordSetup.toLowerCase().startsWith('y')) {
+        console.log('\n Follow the instructions @ www.github/stuff for help with this portion of the setup.');
+        token = await prompt('What is your bots login token?', answer => {
+            if (answer.length < 20) return 'The discord login token is expected to be much longer.';
+        });
+        serverId = await prompt('What is your discord servers id?', answer => {
+            if (answer.length != 18) return 'A discord id is expected to be 18 characters long.';
+        });
+        adminRoleId = await prompt('What is the id of your servers admin/mod role?', answer => {
+            if (answer.length != 18) return 'A discord id is expected to be 18 characters long.';
+        });
+        serverLogChannel = await prompt('What is the id of the channel you would like to use for server logs?', answer => {
+            if (answer.length != 18) return 'A discord id is expected to be 18 characters long.';
+        });
+        commandLogChannel = await prompt('What is the id of the channel you would like to use for logging commands?', answer => {
+            if (answer.length != 18) return 'A discord id is expected to be 18 characters long.';
+        });
+    }
 
     // Construct the configuration object
     const config = defaultConfig;
@@ -179,6 +201,13 @@ async function setupConfig() {
     config.launcher.name = serverName;
     config.launcher.password = serverPassword;
     config.logging.filePath = path.resolve(saveLocation, 'logs/');
+    if (discordSetup.toLowerCase().startsWith('y')) {
+        config.discord.token = token;
+        config.discord.serverId = serverId;
+        config.discord.adminRoleId = adminRoleId;
+        config.discord.serverLogChannel = serverLogChannel;
+        config.discord.commandLogChannel = commandLogChannel;
+    }
 
     // Save the file and return the path
     await fs.writeFile(config.manager.configLocation, JSON.stringify(config, undefined, 2));
