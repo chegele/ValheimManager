@@ -17,6 +17,14 @@ module.exports = {
         password: 'password'
     },
 
+    discord: {
+        token: '',
+        serverId: '',
+        adminRoleId: '',
+        serverLogChannel: '',
+        commandLogChannel: ''
+    },
+
     logging: {
         logDebug: false,
         logDetail: false,

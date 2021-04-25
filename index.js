@@ -50,14 +50,59 @@ module.exports = class ValheimManager {
         this.system = new System(this);
         this.valFiles = new ValFiles(this);
 
+        // Prepare the commands
+        /**@type {Map<String, Command>} */
+        this.commands = new Map();
+        for (const file of fs.readdirSync('./src/commands')) {
+            if (file == 'command.js' || !file.endsWith('.js') || file.startsWith('old_')) continue;
+            const command = new (require(`./src/commands/${file}`))(this);
+            this.commands.set(command.name, command);
+        }
+
         // Monitor for SIGINT and stop server
         const manager = this;
         process.on('SIGINT', async function() {
             manager.logger.general('Signal interrupt detected');
             await manager.launcher.stopValheim();
             process.exit();
-        })
+        });
+    }
 
+    
+    /**
+     * Processes a user executed command
+     * @param {String} commandString - The command including arguments
+     * @param {Function<String>} update - A callback function for providing updates in case of long execution time 
+     * @returns {String} a user ready result from the command execution
+     */
+    async execute(commandString, update) {
+
+        // Validate the command string and break it down to its components
+        if (!commandString || typeof(commandString) != 'string') throw new Error('Execute expects a command string as the first argument.');
+        const args = commandString.split(' ');
+        const commandName = args.shift();
+
+        // If this is a request for the command list, display all available commands
+        if (commandName && commandName.toLowerCase() == 'command-list') {
+            let list = '\n== COMMAND NAME == == == COMMAND DESCRIPTION ==';
+            for (const command of this.commands.values()) list += `\n ${command.name} - ${command.description}`;
+            return list;
+        }
+
+        // Identify the command being called 
+        const command = this.commands.get(commandName);
+        if (!command) return `${commandName} is not a valid command. Try command-list.`;
+
+        // Validate and execute the command
+        try {
+            if (update && command.acknowledgment) update(command.acknowledgment);
+            const validationError = await command.validate(args);
+            if (validationError) return validationError;
+            return await command.execute(args);
+        } catch (err) {
+            this.logger.error(`Error executing command - ${commandString}. \n${err.stack}`);
+            return 'There was an error executing this command';
+        }
     }
     
 }
@@ -72,13 +117,14 @@ function validateConfiguration(config) {
 
     // Validate the main components are present
     if (!config.manager) errors.push('The manager portion of this config is missing. Maybe this is not a config file?');
-    if (!config.manager) errors.push('The launcher portion of this config is missing. Maybe this is not a config file?');
-    if (!config.manager) errors.push('The logging portion of this config is missing. Maybe this is not a config file?');
+    if (!config.launcher) errors.push('The launcher portion of this config is missing.');
+    if (!config.logging) errors.push('The logging portion of this config is missing.');
+    if (!config.discord) errors.push('The discord portion of this config is missing.');
     if (errors.length > 0) return errors.join('\n');
 
     // Validate the existence and types of required properties
     const ignoreProperties = ['operatingSystem'];
-    for (const component of ['manager', 'launcher', 'logging']) {
+    for (const component of ['manager', 'launcher', 'discord', 'logging']) {
         for (const [key, value] of Object.entries(defConfig[component])) {
             if (ignoreProperties.includes(key)) continue;
             if (config[component][key] == undefined) {
@@ -117,6 +163,13 @@ function validateConfiguration(config) {
         if (!config.logging.fileSize.match(/[BKMG]$/)) errors.push('The logging file size should end with B, K, M, or G. This letters represent the byte measurement options.');
         if (config.logging.fileAge < 0) errors.push('The logging file age should be more than 0 days.');
         if (config.logging.fileCount < 0) errors.push('The logging file max count should be more than 0.');
+    }
+    if (config.discord.token != '') {
+        if (config.discord.token.length < 20) errors.push('The discord token should be longer.');
+        if (config.discord.serverId.length != 18) errors.push('The discord server id should be 18 characters long.');
+        if (config.discord.adminRoleId.length != 18) errors.push('The discord admin role id should be 18 characters long.');
+        if (config.discord.serverLogChannel.length != 18) errors.push('The discord server log channel id should be 18 characters long.');
+        if (config.discord.commandLogChannel.length != 18) errors.push('The discord command log channel id should be 18 characters long.');
     }
 
     if (errors.length > 0) return errors.join('\n');

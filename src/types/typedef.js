@@ -1,6 +1,7 @@
 
-/** @typedef {import('../../index')}    Manager */
-/** @typedef {import('./defaultConfig')}       Configuration */
+/** @typedef {import('../../index')}         Manager */
+/** @typedef {import('./defaultConfig')}     Configuration */
+/** @typedef {import('../commands/command')} Command */
 
 /**@typedef {Object} SystemProcess
  * @property {String} pid

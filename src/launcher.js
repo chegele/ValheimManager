@@ -35,7 +35,7 @@ module.exports = class ValheimLauncher {
             const chunk = launcher.recentLogs.join('');
             launcher.recentLogs = [];
             for(const callback of launcher.onLogBuffer) callback(chunk);
-        }, 10 * 1000);
+        }, 5 * 1000);
 
 
         // Setup the child process options
