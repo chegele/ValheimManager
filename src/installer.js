@@ -2,7 +2,6 @@
 require('./types/typedef');
 
 const path = require('path');
-const https = require('https');
 const fs = require('fs-extra');
 
 const steamCliLinkWin = 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip';
@@ -57,7 +56,7 @@ module.exports = class Installer {
             this.manager.logger.general(`Downloading the steam cli from ${steamCliLinkLnx}...`);
             const downloadPath = path.join(this.steamDirectory, 'steam.tar.gz');
             await fs.ensureDir(this.steamDirectory);
-            await promiseDownload(steamCliLinkLnx, downloadPath);
+            await this.manager.system.promiseDownload(steamCliLinkLnx, downloadPath);
             await this.manager.system.execute(`tar -xf ${downloadPath} -C ${this.steamDirectory}`);
             const downloaded = await this.validateSteam();
             if (!downloaded) throw new Error(`Failed to download or extract steam @ ${downloadPath}`);
@@ -103,7 +102,7 @@ module.exports = class Installer {
             this.manager.logger.general(`Downloading the steam cli from ${steamCliLinkWin}...`);
             const downloadPath = path.join(this.steamDirectory, 'steam.zip');
             await fs.ensureDir(this.steamDirectory);
-            await promiseDownload(steamCliLinkWin, downloadPath);
+            await this.manager.system.promiseDownload(steamCliLinkWin, downloadPath);
             await this.manager.system.unzip(downloadPath, this.steamDirectory);
             await fs.unlink(downloadPath);
             if (!this.validateSteam) throw new Error('Unable to locate the steamcmd.exe file.');
@@ -169,24 +168,3 @@ module.exports = class Installer {
 
 }
 
-
-/**
- * Downloads a file from the specified web address.
- * @param {String} url - The source of the file to download.
- * @param {String} destination -The local destination to save the file.
- */
-function promiseDownload(url, destination) {
-    return new Promise(function(resolve, reject) {
-
-        // Create the write stream and resolve on finish
-        const file = fs.createWriteStream(destination);
-        file.on('finish', () => file.close(resolve));
-
-        // Setup the request, piping response to file and reject on error
-        const req = https.get(url, res => res.pipe(file));
-        req.on('error', err => reject(err));
-
-        // Send the request
-        req.end();
-    });
-}

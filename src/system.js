@@ -1,6 +1,7 @@
 require('./types/typedef');
 
 const exec = require('child_process').exec;
+const https = require('https');
 const admZip = require('adm-zip');
 const osUtils = require('os-utils');
 const nat = require('nat-puncher');
@@ -233,6 +234,49 @@ module.exports = class SystemTools {
         }
         this.manager.logger.general('Successfully closed the ports.');
         return true;
+    }
+
+
+    /**
+     * A promise wrapper for sending a get https requests.
+     * @param {String} url - The Https address to request.
+     * @param {String} options - The request options. 
+     */
+    promiseHttpsRequest(url, options) {
+        return new Promise(function(resolve, reject) {
+            const req = https.request(url, options, res => {
+                let body = '';
+                res.on('data', data => {body += data});
+                res.on('end', function() {
+                    if (res.statusCode == '200') return resolve(body);
+                    reject(res.statusCode);
+                });
+            });
+            req.on('error', reject);
+            req.end();
+        }); 
+    }
+
+
+    /**
+     * Downloads a file from the specified web address.
+     * @param {String} url - The source of the file to download.
+     * @param {String} destination -The local destination to save the file.
+     */
+    promiseDownload(url, destination) {
+        return new Promise(function(resolve, reject) {
+
+            // Create the write stream and resolve on finish
+            const file = fs.createWriteStream(destination);
+            file.on('finish', () => file.close(resolve));
+
+            // Setup the request, piping response to file and reject on error
+            const req = https.get(url, res => res.pipe(file));
+            req.on('error', err => reject(err));
+
+            // Send the request
+            req.end();
+        });
     }
     
     
