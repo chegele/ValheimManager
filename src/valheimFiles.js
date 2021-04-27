@@ -58,8 +58,10 @@ module.exports = class ValheimFileManager {
             if (ids.includes(id)) return;
             const file = await fs.readFile(valFilePath);
             await fs.writeFile(valFilePath, file.toString() + `\n${id}`);
+            return true;
         } catch (err) {
             this.manager.logger.error(`Error adding ${id} to ${valFilePath} \n${err}`);
+            return false;
         }
     }
 
@@ -78,11 +80,13 @@ module.exports = class ValheimFileManager {
             for (let i=0; i < lines.length; i++) {
                 if (lines[i].trim() == id) {
                     lines.splice(i, 1);
-                    return await fs.writeFile(valFilePath, lines.join('\n'));
+                    await fs.writeFile(valFilePath, lines.join('\n'));
+                    return true;
                 }
             }
         } catch (err) {
             this.manager.logger.error(`Error removing ${id} from ${valFilePath} \n${err}`);
+            return false;
         }
     }
 
@@ -127,8 +131,10 @@ module.exports = class ValheimFileManager {
                 }
             }
             await fs.writeFile(this.configPath, JSON.stringify(config, undefined, 2));
+            return true;
         } catch(err) {
             this.manager.logger.error(`Error updating configuration value for ${property} to ${value}\n${err}`);
+            return false;
         }
     }
 
