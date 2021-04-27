@@ -75,7 +75,7 @@ module.exports = class Installer {
             });
 
             // Validate the output of the initial run. 
-            if (!setupOutput.includes('Update complete, launching Steamcmd...') ||
+            if (!setupOutput.includes('Update complete, launching') ||
             !setupOutput.includes('Loading Steam API...OK')) {
                 let error = 'Steam did not return the expected result.\n';
                 error += '== Steam cmd log details ==\n' + setupOutput;
