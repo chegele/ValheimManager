@@ -23,19 +23,19 @@ module.exports = class DiscordBot {
             try {
 
                 // Validate the user configured ids. 
-                bot.manager.logger.general('Successfully logged into discord. Validating access and ids...');
+                bot.manager.logger.general('(Discord) Successfully logged into discord. Validating access and ids...');
                 const server = await bot.client.guilds.fetch(bot.config.serverId);
-                if (!server) throw new Error('Failed to identify the discord server. Maybe the id is wrong or this bot has not yet been invited?');
-                bot.manager.logger.general(`Successfully identified the ${server.name} discord server.`);
+                if (!server) throw new Error('(Discord) Failed to identify the discord server. Maybe the id is wrong or this bot has not yet been invited?');
+                bot.manager.logger.general(`(Discord) Successfully identified the ${server.name} discord server.`);
                 const adminRole = await server.roles.fetch(bot.config.adminRoleId);
-                if (!adminRole) throw new Error('Failed to identify the admin role. Maybe the id is wrong?');
-                bot.manager.logger.general(`Recognized the "${adminRole.name}" role as the admin role.`);
+                if (!adminRole) throw new Error('(Discord) Failed to identify the admin role. Maybe the id is wrong?');
+                bot.manager.logger.general(`(Discord) Recognized the "${adminRole.name}" role as the admin role.`);
                 const commandLogChannel = await bot.client.channels.fetch(bot.config.commandLogChannel);
-                if (!commandLogChannel) throw new Error('Failed to identify the command log channel. Maybe the id is wrong or the bot does not have permission to see it?');
-                bot.manager.logger.general(`Using the ${commandLogChannel.name} discord channel for command logging.`);
+                if (!commandLogChannel) throw new Error('(Discord) Failed to identify the command log channel. Maybe the id is wrong or the bot does not have permission to see it?');
+                bot.manager.logger.general(`(Discord) Using the ${commandLogChannel.name} discord channel for command logging.`);
                 const serverLogChannel = await bot.client.channels.fetch(bot.config.serverLogChannel);
-                if (!serverLogChannel) throw new Error('Failed to identify the server log channel. Maybe the id is wrong or the bot does not have permission to see it?');
-                bot.manager.logger.general(`Using the ${serverLogChannel.name} discord channel for server logging.`);
+                if (!serverLogChannel) throw new Error('(Discord) Failed to identify the server log channel. Maybe the id is wrong or the bot does not have permission to see it?');
+                bot.manager.logger.general(`(Discord) Using the ${serverLogChannel.name} discord channel for server logging.`);
     
                 // Attach the discord objects to this module
                 bot.server = server;
@@ -57,14 +57,14 @@ module.exports = class DiscordBot {
                 });
     
                 // Inform the user of success or handle the error and disable discord functionality
-                bot.manager.logger.general('Discord bot ready.');
+                bot.manager.logger.general('(Discord) Discord bot ready.');
             } catch (err) {
                 if (bot.client) bot.client.destroy();
-                bot.manager.logger.error('The discord bot has encountered an error during setup. This feature has been disabled.\n' + err.stack);
+                bot.manager.logger.error('(Discord) The discord bot has encountered an error during setup. This feature has been disabled.\n' + err.stack);
             }
         });
 
-        bot.manager.logger.general('Attempting to login to discord...');
+        bot.manager.logger.general('(Discord) Attempting to login to discord...');
         this.client.login(this.config.token);
     }
 
