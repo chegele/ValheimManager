@@ -163,6 +163,7 @@ module.exports = class ValheimBackups {
     resumeBackups() {
         const backups = this;
         const frequency = this.buFrequency * 1000 * 60;
+        if (this.backuper) clearInterval(this.backuper);
         backups.backuper = setInterval(async function() {
             try {
                 const backup = await backups.createBackup();
