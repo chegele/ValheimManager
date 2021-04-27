@@ -16,7 +16,7 @@ module.exports = class DiscordBot {
         // Setup error and message listeners
         const bot = this;
         this.client = new Discord.Client();
-        this.client.on('error', err => bot.manager.logger.error(`Discord Error - ${err.stack}`));
+        this.client.on('error', err => bot.manager.logger.error(`(Discord Error) ${err.stack}`));
         this.client.on('message', message => {this.handleMessage(message)});
 
         this.client.on('ready', async () => {
@@ -52,7 +52,7 @@ module.exports = class DiscordBot {
                             await serverLogChannel.send(part);
                         }
                     } catch (err) {
-                        bot.manager.logger.error('Failed to send server log chunk to discord.\n' + err.stack);
+                        bot.manager.logger.error('(Discord) Failed to send server log chunk to discord.\n' + err.stack);
                     }
                 });
     
@@ -87,11 +87,12 @@ module.exports = class DiscordBot {
             // Remove the prefix and process the command
             const command = message.content.replace('/vm ', '');
             bot.commandLogChannel.send(`${message.author.id}(${message.member.nickname}) ${command}`);
+            bot.manager.logger.general(`${message.author.id}(${message.member.nickname}) ${command}`);
             const result = await bot.manager.execute(command, ack => message.channel.send(ack));
             await message.channel.send(result);
 
         } catch(err) {
-            bot.manager.logger.error('Error handling discord message.\n' + err.stack);
+            bot.manager.logger.error('(Discord) Error handling discord message.\n' + err.stack);
         }
     }
     
