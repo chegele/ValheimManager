@@ -4,7 +4,6 @@ require('./src/types/typedef');
 const path = require('path');
 const fs = require('fs-extra');
 const Logger = require('chegs-simple-logger');
-const AutoUpdate = require('auto-git-update');
 
 const Backups = require('./src/backups');
 const Discord = require('./src/discord');
@@ -13,12 +12,6 @@ const Launcher = require('./src/launcher');
 const System = require('./src/system');
 const ValFiles = require('./src/valheimFiles');
 const defConfig = require('./src/types/defaultConfig');
-
-const autoGitUpdateConfig = {
-    repository: 'https://github.com/chegele/ValheimManager',
-    tempLocation: './tmp/',
-    exitOnComplete: true
-}
 
 module.exports = class ValheimManager {
 
@@ -43,7 +36,6 @@ module.exports = class ValheimManager {
         this.config = config;
         this.validateConfig = validateConfiguration;
         this.logger = new Logger(config.logging);
-        this.autoManagerUpdate = new AutoUpdate(autoGitUpdateConfig);
         this.backups = new Backups(this);
         this.installer = new Installer(this);
         this.launcher = new Launcher(this);

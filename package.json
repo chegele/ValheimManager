@@ -1,6 +1,6 @@
 {
   "name": "valheim-manager",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A node.js application for managing valheim dedicated servers. ",
   "main": "index.js",
   "bin": {
