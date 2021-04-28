@@ -27,7 +27,7 @@ module.exports = class Command {
         }
 
         // Validate the user is providing the correct number of arguments.
-        if (args.length < this.args) {
+        if (args.length < this.arguments) {
             let example = '\nExample: ' + this.example;
             return ('You did not provide enough information to execute this command.' + example);
         } 

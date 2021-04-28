@@ -58,8 +58,10 @@ module.exports = class ValheimFileManager {
             if (ids.includes(id)) return;
             const file = await fs.readFile(valFilePath);
             await fs.writeFile(valFilePath, file.toString() + `\n${id}`);
+            return true;
         } catch (err) {
             this.manager.logger.error(`Error adding ${id} to ${valFilePath} \n${err}`);
+            return false;
         }
     }
 
@@ -78,11 +80,13 @@ module.exports = class ValheimFileManager {
             for (let i=0; i < lines.length; i++) {
                 if (lines[i].trim() == id) {
                     lines.splice(i, 1);
-                    return await fs.writeFile(valFilePath, lines.join('\n'));
+                    await fs.writeFile(valFilePath, lines.join('\n'));
+                    return true;
                 }
             }
         } catch (err) {
             this.manager.logger.error(`Error removing ${id} from ${valFilePath} \n${err}`);
+            return false;
         }
     }
 
@@ -102,6 +106,7 @@ module.exports = class ValheimFileManager {
             return result;
         } catch(err) {
             this.manager.logger.error(`Error reading configuration value for ${property} \n${err}`);
+            return undefined;
         }
     }
 
@@ -120,15 +125,23 @@ module.exports = class ValheimFileManager {
             const structure = property.split('.');
             for (let i = 0; i < structure.length; i++) {
                 if (i == structure.length - 1) {
+                    if (typeof(prop[structure[i]]) == 'number' && typeof(value) != 'number') {
+                        value = Number(value);
+                        if (value == null) throw new Error(`Unable to convert the value for ${property} to a number.`);
+                    }
+                    if (typeof(prop[structure[i]]) == 'boolean' && typeof(value) != 'boolean') value = (value.toLowerCase().startsWith('t'));
                     prop[structure[i]] = value;
                 } else {
                     if (prop[structure[i]] == undefined) throw new Error('This property does not exist. You must manually add it before it can be set.');
                     prop = prop[structure[i]];
                 }
             }
+            if (this.manager.validateConfig(config) != 'ok') throw new Error('Configuration validation failed after making the changes.');
             await fs.writeFile(this.configPath, JSON.stringify(config, undefined, 2));
+            return true;
         } catch(err) {
             this.manager.logger.error(`Error updating configuration value for ${property} to ${value}\n${err}`);
+            return false;
         }
     }
 

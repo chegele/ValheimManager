@@ -116,7 +116,7 @@ module.exports = class ValheimBackups {
             // remove previous .old files
             const oldDbExists = await fs.access(this.dbFilePath + '.old').then(() => true).catch(() => false);
             const oldFwlExists = await fs.access(this.fwlFilePath + '.old').then(() => true).catch(() => false);
-            if (oldDbExists) await fs.rm(this.dbFilePath + '.old');
+            if (oldDbExists) await fs.unlink(this.dbFilePath + '.old');
             if (oldFwlExists) await fs.remove(this.fwlFilePath + '.old');
 
             // Backup the current world files as .old 
@@ -150,7 +150,7 @@ module.exports = class ValheimBackups {
             const sorted = backups.sort((a, b) => a.age > b.age ? 1 : -1);
             for (let i = 0; i < (backups.length - limit); i++) {
                 try {
-                    await fs.rm(sorted[i].fullPath);
+                    await fs.unlink(sorted[i].fullPath);
                 } catch (err) {
                     this.manager.logger.error(`Failed to remove a backup \nError${err}`, true);
                 }
@@ -163,6 +163,7 @@ module.exports = class ValheimBackups {
     resumeBackups() {
         const backups = this;
         const frequency = this.buFrequency * 1000 * 60;
+        if (this.backuper) clearInterval(this.backuper);
         backups.backuper = setInterval(async function() {
             try {
                 const backup = await backups.createBackup();

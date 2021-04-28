@@ -5,8 +5,8 @@ module.exports = class StartValheim extends Command {
     
     constructor(manager) {
         super(manager);
-        this.name = "stop-valheim";
-        this.example = "stop-valheim";
+        this.name = "valheim-stop";
+        this.example = "valheim-stop";
         this.description = "stops the valheim dedicated server";
         this.acknowledgment = 'Stopping the valheim dedicated server...';
     }

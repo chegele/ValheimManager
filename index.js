@@ -41,21 +41,24 @@ module.exports = class ValheimManager {
 
         // Create instances of all tools and dependencies
         this.config = config;
+        this.validateConfig = validateConfiguration;
         this.logger = new Logger(config.logging);
         this.autoManagerUpdate = new AutoUpdate(autoGitUpdateConfig);
         this.backups = new Backups(this);
-        this.discord = new Discord(this);
         this.installer = new Installer(this);
         this.launcher = new Launcher(this);
         this.system = new System(this);
         this.valFiles = new ValFiles(this);
+        this.discord = new Discord(this);
 
         // Prepare the commands
         /**@type {Map<String, Command>} */
         this.commands = new Map();
-        for (const file of fs.readdirSync('./src/commands')) {
+        const commandsPath = path.resolve(__dirname, './src/commands/');
+        for (const file of fs.readdirSync(commandsPath)) {
             if (file == 'command.js' || !file.endsWith('.js') || file.startsWith('old_')) continue;
-            const command = new (require(`./src/commands/${file}`))(this);
+            const commandPath = path.join(commandsPath, file);
+            const command = new (require(commandPath))(this);
             this.commands.set(command.name, command);
         }
 
@@ -84,7 +87,7 @@ module.exports = class ValheimManager {
 
         // If this is a request for the command list, display all available commands
         if (commandName && commandName.toLowerCase() == 'command-list') {
-            let list = '\n== COMMAND NAME == == == COMMAND DESCRIPTION ==';
+            let list = '\n== COMMAND NAME == == DESCRIPTION ==';
             for (const command of this.commands.values()) list += `\n ${command.name} - ${command.description}`;
             return list;
         }
