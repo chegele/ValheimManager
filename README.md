@@ -22,7 +22,7 @@ https://www.valheimgame.com/
 3. Run the below command to install the tool.
     - npm install -g valheim-manager
 4. Type the below command to launch the tool.
-    - node valheim-manager
+    - valheim-manager
     - Note: If you get an error stating "Cannot find module" you forgot to use -g when installing.
 5. Follow the prompt to generate a new configuration. 
 6. Allow the manager to take care of the rest! 
