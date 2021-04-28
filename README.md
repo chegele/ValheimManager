@@ -64,8 +64,8 @@ The Valheim Manager can be used as a discord bot. The below instructions will he
 2. Select Bot under the settings, and then add bot
 3. Take note of the bots TOKEN. This is essentially the bots username and password for discord.
 4. Select OAuth under setting and take not of the CLIENT ID.
-5. Invite the bot to your discord server by using the link below (REPLACE INSERT_CLIENT_ID_HERE WITH YOUR ID)
-    - https://discord.com/oauth2/authorize?client_id=INSERT_CLIENT_ID_HERE&scope=bot&permissions=0
+5. Invite the bot to your discord server by using the link below (replace INSERT_CLIENT_ID_HERE with your id)
+    - https://discord.com/oauth2/authorize?client_id=INSERT_CLIENT_ID_HERE&scope=bot&permissions=3072
 6. Gather your discord ids by right clicking items in discord and selecting "Copy Id"
     - Discord server id - The discord server the bot should pay attention to
     - Admin / mod role - Anyone with this role will be able to use commands
