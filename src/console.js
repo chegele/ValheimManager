@@ -195,7 +195,7 @@ async function setupConfig() {
     let token, serverId, adminRoleId, serverLogChannel, commandLogChannel;
     if (discordSetup.toLowerCase().startsWith('y')) {
         const instructions = `https://github.com/chegele/ValheimManager/blob/master/README.md#discord-bot`;
-        console.log('\n Follow the instructions @ www.github/stuff for help with this portion of the setup.');
+        console.log(`\n Follow the instructions below for help with this portion of the setup.\n${instructions}`);
         token = await prompt('What is your bots login token?', answer => {
             if (answer.length < 20) return 'The discord login token is expected to be much longer.';
         });
