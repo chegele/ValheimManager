@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 
 // Import the dependencies
 const ValheimManager = require('../index');
