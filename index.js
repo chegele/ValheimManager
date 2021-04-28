@@ -87,7 +87,7 @@ module.exports = class ValheimManager {
 
         // If this is a request for the command list, display all available commands
         if (commandName && commandName.toLowerCase() == 'command-list') {
-            let list = '\n== COMMAND NAME == == == COMMAND DESCRIPTION ==';
+            let list = '\n== COMMAND NAME == == DESCRIPTION ==';
             for (const command of this.commands.values()) list += `\n ${command.name} - ${command.description}`;
             return list;
         }
