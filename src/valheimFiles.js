@@ -125,6 +125,11 @@ module.exports = class ValheimFileManager {
             const structure = property.split('.');
             for (let i = 0; i < structure.length; i++) {
                 if (i == structure.length - 1) {
+                    if (typeof(prop[structure[i]]) == 'number' && typeof(value) != 'number') {
+                        value = Number(value);
+                        if (value == null) throw new Error(`Unable to convert the value for ${property} to a number.`);
+                    }
+                    if (typeof(prop[structure[i]]) == 'boolean' && typeof(value) != 'boolean') value = (value.toLowerCase().startsWith('t'));
                     prop[structure[i]] = value;
                 } else {
                     if (prop[structure[i]] == undefined) throw new Error('This property does not exist. You must manually add it before it can be set.');
