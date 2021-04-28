@@ -41,6 +41,7 @@ module.exports = class ValheimManager {
 
         // Create instances of all tools and dependencies
         this.config = config;
+        this.validateConfig = validateConfiguration;
         this.logger = new Logger(config.logging);
         this.autoManagerUpdate = new AutoUpdate(autoGitUpdateConfig);
         this.backups = new Backups(this);
