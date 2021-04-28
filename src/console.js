@@ -9,6 +9,18 @@ const rl = require('readline').createInterface({
     output: process.stdout
 });
 
+const textTitle = `
+ _   _       _ _          _            ___  ___                                  
+| | | |     | | |        (_)           |  \\/  |                                  
+| | | | __ _| | |__   ___ _ _ __ ___   | .  . | __ _ _ __   __ _  __ _  ___ _ __ 
+| | | |/ _\` | | '_ \\ / _ \\ | '_ \` _ \\  | |\\/| |/ _\` | '_ \\ / _\` |/ _\` |/ _ \\ '__|
+\\ \\_/ / (_| | | | | |  __/ | | | | | | | |  | | (_| | | | | (_| | (_| |  __/ |   
+ \\___/ \\__,_|_|_| |_|\\___|_|_| |_| |_| \\_|  |_/\\__,_|_| |_|\\__,_|\\__, |\\___|_|   
+                                                                  __/ |          
+                                                                 |___/   
+`;
+console.log(textTitle);
+
 // Create a logger to be used in case of error, before the script closes
 let logger;
 
@@ -182,6 +194,7 @@ async function setupConfig() {
     });
     let token, serverId, adminRoleId, serverLogChannel, commandLogChannel;
     if (discordSetup.toLowerCase().startsWith('y')) {
+        const instructions = `https://github.com/chegele/ValheimManager/blob/master/README.md#discord-bot`;
         console.log('\n Follow the instructions @ www.github/stuff for help with this portion of the setup.');
         token = await prompt('What is your bots login token?', answer => {
             if (answer.length < 20) return 'The discord login token is expected to be much longer.';
