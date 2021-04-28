@@ -1,6 +1,6 @@
 {
   "name": "valheim-manager",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A node.js application for managing valheim dedicated servers. ",
   "main": "index.js",
   "bin": {
@@ -30,7 +30,6 @@
   "homepage": "https://github.com/chegele/ValheimManager#readme",
   "dependencies": {
     "adm-zip": "^0.5.3",
-    "auto-git-update": "^2.0.1",
     "chegs-simple-logger": "^1.1.0",
     "discord.js": "^12.5.3",
     "fs-extra": "^9.1.0",
