@@ -106,6 +106,7 @@ module.exports = class ValheimFileManager {
             return result;
         } catch(err) {
             this.manager.logger.error(`Error reading configuration value for ${property} \n${err}`);
+            return undefined;
         }
     }
 
