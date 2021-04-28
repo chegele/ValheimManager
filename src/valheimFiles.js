@@ -131,6 +131,7 @@ module.exports = class ValheimFileManager {
                     prop = prop[structure[i]];
                 }
             }
+            if (this.manager.validateConfig(config) != 'ok') throw new Error('Configuration validation failed after making the changes.');
             await fs.writeFile(this.configPath, JSON.stringify(config, undefined, 2));
             return true;
         } catch(err) {
