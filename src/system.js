@@ -243,8 +243,7 @@ module.exports = class SystemTools {
      * Reads the applications version from the package.json file.
      */
     async readLocalVersion() {
-        const root = path.dirname(require.main.filename);
-        let file = path.join(root, 'package.json');
+        let file = path.join(__dirname, '../package.json');
         let appPackage = await fs.readFile(file);
         return JSON.parse(appPackage).version;
     }
