@@ -185,7 +185,8 @@ async function setupConfig() {
         if (answer.length < 1 || answer.length > 20) return 'Try a name between 1 and 20 characters long.';
     });
     const serverPassword = await prompt('What should the server password be?', answer => {
-        if (answer.length < 4 || answer.length > 20) return 'Try a password between 4 and 20 characters long.';
+        if (answer == "") return;
+        if (answer.length < 6 || answer.length > 20) return 'Try a password between 6 and 20 characters long, or leave it empty.';
     });
     const serverPort = await prompt('What port should the server use? The default port is 2456.', answer => {
         if (isNaN(answer) || answer < 1024 || answer > 65535) return 'The port should be between 1024 and 65535.';
