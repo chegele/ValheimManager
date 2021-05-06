@@ -77,9 +77,8 @@ async function execute() {
     }
 
     // If configured, attempt to open ports
-    if (config.manager.autoOpenPorts) await manager.system.autoOpenServerPorts().catch(err => {
-        console.log(`Your router may not have upnp services enabled. Try again after enabling this feature on your router or manually open the ports.`);
-        process.exit();
+    if (config.manager.autoOpenPorts) await manager.system.autoOpenServerPorts().catch(async err => {
+        manager.logger.error(`Your router does not have upnp services enabled. You will need to manually open the ports.`);
     });
 
     // Install the the steam CLI
