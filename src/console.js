@@ -163,7 +163,8 @@ function prompt(question, errorCheck) {
 async function setupConfig() {
 
     // Gather the users preferences
-    const saveLocation = await prompt('Where would you like to save this server managers files?', answer => {
+    const saveLocation = await prompt(`Where would you like to save this config and server files?\nTip: Leave this empty to use the current directory (${path.resolve('./')})`, answer => {
+        if (answer == null || answer == '' || answer == ' ') answer = './';
         const savePath = path.resolve(answer);
         if (!fs.existsSync(savePath)) return 'This does not seem to be a valid path.';
         if (savePath.includes(' ')) {
