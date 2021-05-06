@@ -163,8 +163,13 @@ function prompt(question, errorCheck) {
 async function setupConfig() {
 
     // Gather the users preferences
-    const saveLocation = await prompt('Where would you like to save this file?', answer => {
-        if (!fs.existsSync(path.resolve(answer))) return 'This does not seem to be a valid path.';
+    const saveLocation = await prompt('Where would you like to save this server managers files?', answer => {
+        const savePath = path.resolve(answer);
+        if (!fs.existsSync(savePath)) return 'This does not seem to be a valid path.';
+        if (savePath.includes(' ')) {
+            const noSpaces = savePath.replace(' ', '-');
+            return `Steam does not work with spaces in file paths.\n  Current Path: ${savePath}\n  Recommended change: ${noSpaces}`;
+        }
     });
     const backupFrequency = await prompt('How often(in minutes) would you like to create backups?', answer => {
         if (isNaN(answer) || answer < 0) return 'This needs to be a number greater than 0.';
