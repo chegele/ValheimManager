@@ -77,9 +77,8 @@ async function execute() {
     }
 
     // If configured, attempt to open ports
-    if (config.manager.autoOpenPorts) await manager.system.autoOpenServerPorts().catch(err => {
-        console.log(`Your router may not have upnp services enabled. Try again after enabling this feature on your router or manually open the ports.`);
-        process.exit();
+    if (config.manager.autoOpenPorts) await manager.system.autoOpenServerPorts().catch(async err => {
+        manager.logger.error(`Your router does not have upnp services enabled. You will need to manually open the ports.`);
     });
 
     // Install the the steam CLI
@@ -99,16 +98,22 @@ async function execute() {
     // Generate the launch file 
     if (!await manager.launcher.generateLauncher()) process.exit();
 
-    // Attempt to start the server. If it fails an update may be needed
-    const valheimStarted = await manager.launcher.startValheim();
-    if (!valheimStarted) {
-        manager.logger.general('Initial launch failed. Attempting to update steam and valheim...');
-        await manager.launcher.stopValheim();
-        if (!await manager.installer.installSteam()) process.exit();
-        await manager.system.wait(3);
-        if (!await manager.installer.installValheim()) process.exit();
-        await manager.system.wait(3);
-        if (!await manager.launcher.startValheim()) process.exit();
+    // Check to see if valheim is already running
+    const running = await manager.launcher.isValheimRunning();
+    if (running) {
+        manager.logger.warning('Valheim is already running. You will need to restart it for the manager to capture and save logs.');
+    } else {
+        // Attempt to start the server. If it fails an update may be needed
+        const valheimStarted = await manager.launcher.startValheim();
+        if (!valheimStarted) {
+            manager.logger.general('Initial launch failed. Attempting to update steam and valheim...');
+            await manager.launcher.stopValheim();
+            if (!await manager.installer.installSteam()) process.exit();
+            await manager.system.wait(3);
+            if (!await manager.installer.installValheim()) process.exit();
+            await manager.system.wait(3);
+            if (!await manager.launcher.startValheim()) process.exit();
+        }        
     }
 
     // Enable auto restart if configured
@@ -163,8 +168,14 @@ function prompt(question, errorCheck) {
 async function setupConfig() {
 
     // Gather the users preferences
-    const saveLocation = await prompt('Where would you like to save this file?', answer => {
-        if (!fs.existsSync(path.resolve(answer))) return 'This does not seem to be a valid path.';
+    const saveLocation = await prompt(`Where would you like to save this config and server files?\nTip: Leave this empty to use the current directory (${path.resolve('./')})`, answer => {
+        if (answer == null || answer == '' || answer == ' ') answer = './';
+        const savePath = path.resolve(answer);
+        if (!fs.existsSync(savePath)) return 'This does not seem to be a valid path.';
+        if (savePath.includes(' ')) {
+            const noSpaces = savePath.replace(' ', '-');
+            return `Steam does not work with spaces in file paths.\n  Current Path: ${savePath}\n  Recommended change: ${noSpaces}`;
+        }
     });
     const backupFrequency = await prompt('How often(in minutes) would you like to create backups?', answer => {
         if (isNaN(answer) || answer < 0) return 'This needs to be a number greater than 0.';
@@ -173,13 +184,14 @@ async function setupConfig() {
         if (isNaN(answer) || answer < 0) return 'This needs to be a number greater than 0.';
     });
     const worldName = await prompt('What would you like to name the valheim world?', answer => {
-        if (answer.length < 1 || answer.length > 20) return 'Try a name between 1 and 20 characters long.';
+        if (answer.length < 1 || answer.length > 100) return 'Try a name between 1 and 100 characters long.';
     });
     const serverName = await prompt('What would you like the server name to be in the server browser?', answer => {
-        if (answer.length < 1 || answer.length > 20) return 'Try a name between 1 and 20 characters long.';
+        if (answer.length < 1 || answer.length > 100) return 'Try a name between 1 and 100 characters long.';
     });
     const serverPassword = await prompt('What should the server password be?', answer => {
-        if (answer.length < 4 || answer.length > 20) return 'Try a password between 4 and 20 characters long.';
+        if (answer == "") return;
+        if (answer.length < 6 || answer.length > 100) return 'Try a password between 6 and 100 characters long, or leave it empty.';
     });
     const serverPort = await prompt('What port should the server use? The default port is 2456.', answer => {
         if (isNaN(answer) || answer < 1024 || answer > 65535) return 'The port should be between 1024 and 65535.';
@@ -245,7 +257,9 @@ execute().catch(err => {
     const msg = `The Valheim Manager has encountered an unexpected error.\n${err.stack}`;
     if (logger) {
         logger.error(msg);
+        logger.general('Visit our discord to report this error and get help - https://discord.gg/NJBs6PGU');
     } else {
         console.log(msg);
+        console.log('Visit our discord to report this error and get help - https://discord.gg/NJBs6PGU')
     }  
 });

@@ -86,8 +86,8 @@ module.exports = class DiscordBot {
 
             // Remove the prefix and process the command
             const command = message.content.replace('/vm ', '');
-            bot.commandLogChannel.send(`${message.author.id}(${message.member.nickname}) ${command}`);
-            bot.manager.logger.general(`${message.author.id}(${message.member.nickname}) ${command}`);
+            bot.commandLogChannel.send(`${message.author.id}(${message.member.displayName}) ${command}`);
+            bot.manager.logger.general(`${message.author.id}(${message.member.displayName}) ${command}`);
             const result = await bot.manager.execute(command, ack => message.channel.send(ack));
             await message.channel.send(result);
 

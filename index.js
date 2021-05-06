@@ -150,6 +150,12 @@ function validateConfiguration(config) {
         } 
     }
 
+    // Check for spaces in the server path
+    if (config.manager.serverLocation.includes(' ')) {
+        const noSpaces = config.manager.serverLocation.replace(' ', '-');
+        errors.push(`Steam does not work with spaces in file paths.\n  Current Path: ${config.manager.serverLocation}\n Recommended change: ${noSpaces}`);
+    }
+
     // Validate the specifics of some property values
     if (config.manager.backupFrequency < 0) errors.push('The backup frequency should be greater than 0.');
     if (config.manager.backupRetention < 0) errors.push('The backup retention should be greater than 0.');
