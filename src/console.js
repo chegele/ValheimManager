@@ -98,16 +98,22 @@ async function execute() {
     // Generate the launch file 
     if (!await manager.launcher.generateLauncher()) process.exit();
 
-    // Attempt to start the server. If it fails an update may be needed
-    const valheimStarted = await manager.launcher.startValheim();
-    if (!valheimStarted) {
-        manager.logger.general('Initial launch failed. Attempting to update steam and valheim...');
-        await manager.launcher.stopValheim();
-        if (!await manager.installer.installSteam()) process.exit();
-        await manager.system.wait(3);
-        if (!await manager.installer.installValheim()) process.exit();
-        await manager.system.wait(3);
-        if (!await manager.launcher.startValheim()) process.exit();
+    // Check to see if valheim is already running
+    const running = await manager.launcher.isValheimRunning();
+    if (running) {
+        manager.logger.warning('Valheim is already running. You will need to restart it for the manager to capture and save logs.');
+    } else {
+        // Attempt to start the server. If it fails an update may be needed
+        const valheimStarted = await manager.launcher.startValheim();
+        if (!valheimStarted) {
+            manager.logger.general('Initial launch failed. Attempting to update steam and valheim...');
+            await manager.launcher.stopValheim();
+            if (!await manager.installer.installSteam()) process.exit();
+            await manager.system.wait(3);
+            if (!await manager.installer.installValheim()) process.exit();
+            await manager.system.wait(3);
+            if (!await manager.launcher.startValheim()) process.exit();
+        }        
     }
 
     // Enable auto restart if configured
