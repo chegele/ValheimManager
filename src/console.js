@@ -257,7 +257,9 @@ execute().catch(err => {
     const msg = `The Valheim Manager has encountered an unexpected error.\n${err.stack}`;
     if (logger) {
         logger.error(msg);
+        logger.general('Visit our discord to report this error and get help - https://discord.gg/NJBs6PGU');
     } else {
         console.log(msg);
+        console.log('Visit our discord to report this error and get help - https://discord.gg/NJBs6PGU')
     }  
 });
