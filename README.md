@@ -15,14 +15,6 @@ https://www.valheimgame.com/
    - Command Line Interface for setup and commands
    - Full discord integration for monitor and commands
 
-## Try Me
-Join the discord server @ https://discord.gg/NJBs6PGU'
-   - Try to break our dedicated server with the public bot.
-   - Find additional information and setup instructions. 
-   - See the Valheim Manager change log and updates.
-   - Report bugs and get help setting up your server.
-   - Find other server hosts and recruit players.
-
 ## Installation & Setup
 
 1. Install Node.js - https://nodejs.org/en/
