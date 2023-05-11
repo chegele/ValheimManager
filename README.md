@@ -30,7 +30,7 @@ https://www.valheimgame.com/
 To save time on future launches, navigate to the location where you saved your configuration before starting the valheim manager.
 ```
 cd C:\Users\scheg\Documents\ValheimManager\
-node valheim-manager
+valheim-manager
 ```
 
 ## Commands
