@@ -167,10 +167,10 @@ function validateConfiguration(config) {
     }
     if (config.discord.token != '') {
         if (config.discord.token.length < 20) errors.push('The discord token should be longer.');
-        if (config.discord.serverId.length != 18) errors.push('The discord server id should be 18 characters long.');
-        if (config.discord.adminRoleId.length != 18) errors.push('The discord admin role id should be 18 characters long.');
-        if (config.discord.serverLogChannel.length != 18) errors.push('The discord server log channel id should be 18 characters long.');
-        if (config.discord.commandLogChannel.length != 18) errors.push('The discord command log channel id should be 18 characters long.');
+        if (config.discord.serverId.length < 17) errors.push('The discord server id should be at least 17 characters long.');
+        if (config.discord.adminRoleId.length < 17) errors.push('The discord admin role id should be at least 17 characters long.');
+        if (config.discord.serverLogChannel.length < 17) errors.push('The discord server log channel id should be at least 17 characters long.');
+        if (config.discord.commandLogChannel.length < 17) errors.push('The discord command log channel id should be at least 17 characters long.');
     }
 
     if (errors.length > 0) return errors.join('\n');
