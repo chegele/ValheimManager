@@ -15,6 +15,12 @@ module.exports = class ValheimBackups {
             this.worldsPath = path.join(os.homedir(), '.config/unity3d/IronGate/Valheim/worlds');
         }
 
+        // patch 0.209.8 (client) and possibly 8977163 dedicated server introduced a new save location "_local"
+        // for client and dedicated servers local worlds (non-cloud saved) - see https://steamdb.info/patchnotes/8954338/
+        if(!manager.config.legacyBackupLocation) {
+            this.worldsPath += "_local";
+        }
+
         this.manager = manager;
         this.buFrequency = manager.config.manager.backupFrequency;
         this.buLimit = manager.config.manager.backupRetention;
