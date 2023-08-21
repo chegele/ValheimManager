@@ -213,19 +213,19 @@ async function setupConfig() {
         const instructions = `https://github.com/chegele/ValheimManager/blob/master/README.md#discord-bot`;
         console.log(`\n Follow the instructions below for help with this portion of the setup.\n${instructions}`);
         token = await prompt('What is your bots login token?', answer => {
-            if (answer.length < 20) return 'The discord login token is expected to be much longer.';
+            if (answer.length < 20) return 'The discord login token is expected to be 20 characters or longer.';
         });
         serverId = await prompt('What is your discord servers id?', answer => {
-            if (answer.length != 18) return 'A discord id is expected to be 18 characters long.';
+            if (answer.length > 17) return 'A discord id is expected to be 18 characters or longer.';
         });
         adminRoleId = await prompt('What is the id of your servers admin/mod role?', answer => {
-            if (answer.length != 18) return 'A discord id is expected to be 18 characters long.';
+            if (answer.length > 17) return 'A discord id is expected to be 18 characters or longer.';
         });
         serverLogChannel = await prompt('What is the id of the channel you would like to use for server logs?', answer => {
-            if (answer.length != 18) return 'A discord id is expected to be 18 characters long.';
+            if (answer.length > 17) return 'A discord id is expected to be 18 characters or longer.';
         });
         commandLogChannel = await prompt('What is the id of the channel you would like to use for logging commands?', answer => {
-            if (answer.length != 18) return 'A discord id is expected to be 18 characters long.';
+            if (answer.length > 17) return 'A discord id is expected to be 18 characters or longer.';
         });
     }
 
