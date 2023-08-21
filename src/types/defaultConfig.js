@@ -4,6 +4,9 @@ module.exports = {
     manager: {
         configLocation: './vmConfig.json',
         serverLocation: './server/',
+
+        //patches < 0.209.8 (client) and possibly build 8977163 dedicated server need to set this as true
+        legacyBackupLocation: false,
         backupFrequency: 60,
         backupRetention: 6,
         autoOpenPorts: false,
