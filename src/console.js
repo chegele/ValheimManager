@@ -183,6 +183,9 @@ async function setupConfig() {
     const backupRetention = await prompt('How many backups should be kept at one time?', answer => {
         if (isNaN(answer) || answer < 0) return 'This needs to be a number greater than 0.';
     });
+    const legacyBackupLocation = await prompt('Are you using a legacy version of the Valheim Server? (files saved under worlds_local)?', answer => {
+        if (!answer.toLowerCase().startsWith('y') && !answer.toLowerCase().startsWith('n')) return 'You need to answer with a yes or a no.';
+    });
     const worldName = await prompt('What would you like to name the valheim world?', answer => {
         if (answer.length < 1 || answer.length > 100) return 'Try a name between 1 and 100 characters long.';
     });
@@ -232,6 +235,7 @@ async function setupConfig() {
     config.manager.serverLocation = path.resolve(saveLocation, 'server/');
     config.manager.backupFrequency = Number(backupFrequency);
     config.manager.backupRetention = Number(backupRetention);
+    config.manager.legacyBackupLocation = legacyBackupLocation.toLowerCase().startsWith('y');
     config.manager.autoOpenPorts = autoOpenPorts.toLowerCase().startsWith('y');
     config.manager.autoRestartServer = autoRestarts.toLowerCase().startsWith('y');
     config.launcher.port = Number(serverPort);
