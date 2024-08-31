@@ -47,6 +47,11 @@ module.exports = class ValheimLauncher {
 
         // Define the OS specific variables and functions
         if (manager.config.manager.operatingSystem == 'win32') {
+            // This is necessary for newer NodeJS versions as the there was a change in response to
+            // a security incident - see below:
+            // https://github.com/nodejs/node/issues/52554
+            // https://nodejs.org/en/blog/vulnerability/april-2024-security-releases-2
+            this.spawnOptions.shell = true;
             this.generateLauncher = this.generateWindowsLauncher;
             this.launchFile = path.join(this.valheimPath, 'launcher.bat');
             this.processName = 'valheim_server.exe';
